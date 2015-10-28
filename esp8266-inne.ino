@@ -14,11 +14,15 @@ const char* ssid     = "tupsu";
 WiFiServer server(80);
 
 unsigned long time = 0;
-boolean ledon = false;
+unsigned long serialtime = 0;
+boolean ledon = true;
  
 void setup() {
+  pinMode(A0, INPUT);
   pinMode(2, OUTPUT);
+  pinMode(16, OUTPUT);
   digitalWrite(2, HIGH);
+  digitalWrite(16, LOW);
   Serial.begin(115200);
   delay(10);
  
@@ -68,7 +72,10 @@ void loop() {
           client.print(getTemp());
           client.println(",");
           client.print("  \"humidity\":");
-          client.println(getHum());
+          client.print(getHum());
+          client.println(",");
+          client.print("  \"brightness-raw\":");
+          client.println(getBrightness());
           client.println("}");
           break;
         }
@@ -86,8 +93,14 @@ void loop() {
 
   if(ledon && millis()-time>1000) {
     digitalWrite(2, HIGH);
+    digitalWrite(16, HIGH);
+    ledon = false;
   }
 
+  if(millis()-serialtime>1000) {
+    Serial.println( analogRead(A0) );
+    serialtime=millis();
+  }
   
 }
 
@@ -101,8 +114,15 @@ float getTemp() {
 
 float getHum() {
   float h = dht.readHumidity();
-  Serial.print(" , Humidity: ");
-  Serial.println(h);
+  Serial.print(", Humidity: ");
+  Serial.print(h);
   return h;
+}
+
+int getBrightness() {
+  int b = analogRead(A0);
+  Serial.print(", Brightness: ");
+  Serial.println(b);
+  return b;
 }
 
