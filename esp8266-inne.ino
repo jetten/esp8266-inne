@@ -14,31 +14,31 @@ OneWire ds(13); // Dallas temp sensor on D7*/
 
 const char welcomeMessage[] PROGMEM = {
   "<!DOCTYPE HTML>\n"
-  "<html>"
-  "<head>"
-    "<title>ESP8266 environmental data logger</title>"
-    "<link rel=\"stylesheet\" href=\"//jiihon.com/temp/this_server/css/default.css\" type=\"text/css\" />"
-    "<link rel=\"shortcut icon\" href=\"//jiihon.com/favicon.ico\" />"
-    "<style>"
-      "body {font-size: 1.0em;}"
-      "pre {display: inline;}"
-      "h2 {margin-bottom: 0px;}"
-      "p {margin-top: 0px;}"
-    "</style>"
-  "</head>"
-  "<body>"
-  "<p>This is the NodeMCU ESP8266 IoT climate sensor."
-  "Cached data is available from <a href=\"//inne.jiihon.com\">inne.jiihon.com</a> if you prefer.</p>"
-  "<p><img src=\"//inne.jiihon.com/nodemcu-sensor.jpg\"/></a>"
-  "<h2>API access</h2>"
-  "<p>Access the API from <a href=\"/inne\">/inne</a></p>"
-  "<h2>API documentation</h2>"
-  "<p>"
-    "The data from the api is in JSON format<br>"
-    "<pre>temperature:</pre> Inside temperature in C<br>"
-    "<pre>humidity:</pre> Humidity in %RH<br>"
-    "<pre>brightness-raw:</pre> Raw brightness value, range 0-1023. A value <= 16 usually means that lights are off. Values > 100 means daylight."
-  "</p>"
+  "<html>\n"
+  "<head>\n"
+  "  <title>ESP8266 environmental data logger</title>\n"
+  "  <link rel=\"stylesheet\" href=\"//jiihon.com/temp/this_server/css/default.css\" type=\"text/css\" />\n"
+  "  <link rel=\"shortcut icon\" href=\"//jiihon.com/favicon.ico\" />\n"
+  "  <style>\n"
+  "    body {font-size: 1.0em;}\n"
+  "    pre {display: inline;}\n"
+  "    h2 {margin-bottom: 0px;}\n"
+  "    p {margin-top: 0px;}\n"
+  "  </style>\n"
+  "</head>\n"
+  "<body>\n"
+  "<p>This is the NodeMCU ESP8266 IoT climate sensor.\n"
+  "Cached data is available from <a href=\"//inne.jiihon.com\">inne.jiihon.com</a> if you prefer.</p>\n"
+  "<p><img src=\"//inne.jiihon.com/nodemcu-sensor.jpg\"/></a>\n"
+  "<h2>API access</h2>\n"
+  "<p>Access the API from <a href=\"/inne\">/inne</a></p>\n"
+  "<h2>API documentation</h2>\n"
+  "<div>\n"
+  "  The data from the api is in JSON format<br>\n"
+  "  <pre>temperature:</pre> Inside temperature in ℃<br>\n"
+  "  <pre>humidity:</pre> Humidity in %RH<br>\n"
+  "  <pre>brightness-raw:</pre> Raw brightness value, range 0-1023. A value <= 17 usually means that lights are off. Values > 100 means daylight.\n"
+  "</div>"
 };
 
 const char* ssid     = "tupsu";
@@ -105,12 +105,12 @@ void loop() {
     else {
       client.println("Content-type: text/html; charset=utf-8\n");
       client.println(welcomeMessage);
-      client.println("<h2>Current values</h2>\n<p>");
-      String s = "<pre>temperature: "; s+=getTemp(); s+="<br>";
-      s +="<pre>humidity: "; s+=getHum(); s+="<br>";
-      s +="<pre>brightness-raw: "; s+=getBrightness();
+      client.println("<h2>Current values</h2>\n<div>");
+      String s = "<pre>temperature: "; s+=getTemp(); s+=" °C</pre><br>";
+      s +="<pre>humidity: "; s+=getHum(); s+=" %RH</pre><br>";
+      s +="<pre>brightness-raw: "; s+=getBrightness(); s+="</pre>";
       client.println(s);
-      client.println("</p>\n</body>\n</html>");
+      client.println("</div>\n</body>\n</html>");
     }
     
     delay(1);
