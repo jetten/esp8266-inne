@@ -1,16 +1,10 @@
-/*
- *  Simple HTTP get webclient test
- */
- 
 #include <ESP8266WiFi.h>
+#include <stdlib.h>
 
 #include "DHT.h"        // DHT22 temperature and humidity sensor
 #define DHTPIN 5
 #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 DHT dht(DHTPIN, DHTTYPE);
-
-/*#include <OneWire.h>
-OneWire ds(13); // Dallas temp sensor on D7*/
 
 const char welcomeMessage[] PROGMEM = {
   "<!DOCTYPE HTML>\n"
@@ -49,11 +43,17 @@ WiFiServer server(80);
 unsigned long time = 0;
 unsigned long serialtime = 0;
 boolean ledon = true;
- 
-void setup() {
-  /*pinMode(12,OUTPUT); digitalWrite(12,LOW);// Dallas VDD D6
-  pinMode(15,OUTPUT); digitalWrite(15,HIGH); // Dallas GND D8 */
-    
+
+unsigned long accquiretime = 0;
+unsigned long accquirebrightnesstime = 0;
+float temparr[30];
+byte temppointer=0;
+float humarr[30];
+byte humpointer=0;
+int brightnessarr[100];
+byte brightnesspointer=0;
+
+void setup() {    
   pinMode(A0, INPUT);
   pinMode(2, OUTPUT); //Wifi module led
   pinMode(16, OUTPUT); //board led
@@ -127,30 +127,82 @@ void loop() {
     Serial.println( analogRead(A0) );
     serialtime=millis();
   }*/
+
+
+  if(millis()-accquiretime>1000) {
+    temparr[temppointer] = dht.readTemperature();
+    humarr[humpointer] = dht.readHumidity();
+
+    if(temppointer>=29) {temppointer=0;} else {temppointer++;}
+    if(humpointer>=29) {humpointer=0;} else {humpointer++;}
+    accquiretime=millis();
+  }
+  if(millis()-accquirebrightnesstime>300) {
+    brightnessarr[brightnesspointer] = analogRead(A0);
+    if(brightnesspointer>=99) {brightnesspointer=0;} else {brightnesspointer++;}
+    accquirebrightnesstime=millis();
+  }
   
 }
 
+// Bubble sort with floats
+void isort_float(float *a, int n) {
+ for (int i = 1; i < n; ++i) {
+   float j = a[i];
+   int k;
+   for (k = i - 1; (k >= 0) && (j < a[k]); k--) {
+     a[k + 1] = a[k];
+   }
+   a[k + 1] = j;
+ }
+}
+
+// Bubble sort with floats
+void isort(int *a, int n) {
+ for (int i = 1; i < n; ++i) {
+   int j = a[i];
+   int k;
+   for (k = i - 1; (k >= 0) && (j < a[k]); k--) {
+     a[k + 1] = a[k];
+   }
+   a[k + 1] = j;
+ }
+}
 
 float getTemp() {
-  float t = dht.readTemperature();
-  Serial.print("Temp: ");
-  Serial.print(t);
-  return t;
+  return findTemp(temparr);
+}
+float findTemp(float temperatures[30]) {
+  isort_float(temperatures,30);
+  return temperatures[15];
 }
 
 float getHum() {
-  float h = dht.readHumidity();
-  Serial.print(", Humidity: ");
-  Serial.print(h);
-  return h;
+  return findHum(humarr);
+}
+float findHum(float hums[30]) {
+  isort_float(hums,30);
+  return hums[15];
 }
 
 int getBrightness() {
-  int b = analogRead(A0);
-  Serial.print(", Brightness: ");
-  Serial.println(b);
-  return b;
+  return findBrightness(brightnessarr);
 }
+int findBrightness(int brightnesses[100]) {
+  isort(brightnesses,100);
+  return brightnesses[50];
+}
+
+/*int getBrightness() {
+  int b[49];
+  for(byte i=0; i<49; i++) {
+    b[i] = analogRead(A0);
+    Serial.print(b[i]); Serial.print(" ");
+  }
+  //int b[] =  {analogRead(A0), analogRead(A0), analogRead(A0)};
+  isort(b, 49);
+  return b[24];
+}*/
 
 String getJSON() {
   float t = getTemp(); yield();
@@ -165,51 +217,3 @@ String getJSON() {
   return s;
 }
 
-/* float getDallasTemp() {
-  byte i;
-  byte present = 0;
-  byte type_s = 0;
-  byte data[12];
-  byte addr[8];
-  float celsius;
-
-  if ( !ds.search(addr)) {
-    Serial.println("No more addresses.");
-    ds.reset_search();
-    delay(250);
-  }
-
-  Serial.print("ROM =");
-  for( i = 0; i < 8; i++) {
-    Serial.write(' ');
-    Serial.print(addr[i], HEX);
-  }
-
-  if (OneWire::crc8(addr, 7) != addr[7]) {
-      Serial.println("CRC is not valid!");
-  }
-
-  ds.reset();
-  ds.select(addr);
-  ds.write(0x44, 1);
-
-  delay(1000);
-
-  present = ds.reset();
-  ds.select(addr);    
-  ds.write(0xBE);         // Read Scratchpad
-
-  int16_t raw = (data[1] << 8) | data[0];
-  byte cfg = (data[4] & 0x60);
-  // at lower res, the low bits are undefined, so let's zero them
-  if (cfg == 0x00) raw = raw & ~7;  // 9 bit resolution, 93.75 ms
-  else if (cfg == 0x20) raw = raw & ~3; // 10 bit res, 187.5 ms
-  else if (cfg == 0x40) raw = raw & ~1; // 11 bit res, 375 ms
-  //// default is 12 bit resolution, 750 ms conversion time
-
-  celsius = (float)raw / 16.0;
-  
-  Serial.print(", DallasTemp: ");
-  Serial.print(celsius);
-  return celsius;
-} */
