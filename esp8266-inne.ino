@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "DHT.h"        // DHT22 temperature and humidity sensor
-#define DHTPIN 5
+#define DHTPIN 13
 #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -216,4 +216,5 @@ String getJSON() {
   s += "  \"brightness-raw\":"; s+=b; s+="\n}";
   return s;
 }
+
 
