@@ -35,9 +35,9 @@ const char welcomeMessage[] PROGMEM = {
   "</div>"
 };
 
-const char* ssid     = "tupsu";
-//const char* ssid     = "aalto open";
-//const char* password = "";
+//const char* ssid     = "tupsu";
+const char* ssid     = "aalto open";
+
 WiFiServer server(80);
 
 unsigned long time = 0;
@@ -118,7 +118,7 @@ void loop() {
     client.stop();
   }
 
-  if(ledon && millis()-time>1000) {
+  if(ledon && millis()-time>100) {
     digitalWrite(2, HIGH);
     digitalWrite(16, HIGH);
     ledon = false; time=millis();
@@ -146,7 +146,7 @@ void loop() {
 
   if(millis()-submittime>15000 && getBrightness()!=0) {
     digitalWrite(16,LOW);
-    ledon=true; time=millis()+900;
+    ledon=true; time=millis();
     
     submitData();
     submittime=millis();

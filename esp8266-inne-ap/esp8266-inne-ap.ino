@@ -89,18 +89,18 @@ void loop() {
       client.println("Content-type: text/html; charset=utf-8\n");
       client.println(welcomeMessage);
       client.println("<h2>Current values</h2>\n<div>");
-      String s = "<pre>temperature: "; s+=getTemp(); s+=" °C</pre><br>";
-      s +="<pre>humidity: "; s+=getHum(); s+=" %RH</pre><br>";
-      s +="<pre>brightness-raw: "; s+=getBrightness(); s+="</pre>";
+      String s = "<pre>temperature: "; s+=getTemp(); s+=" °C</pre><br>"; yield();
+      s +="<pre>humidity: "; s+=getHum(); s+=" %RH</pre><br>"; yield();
+      s +="<pre>brightness-raw: "; s+=getBrightness(); s+="</pre>"; yield();
       client.println(s);
       client.println("</div>\n</body>\n</html>");
     }
     
-    delay(1);
+    delay(10);
     client.stop();
   }
 
-  if(ledon && millis()-time>1000) {
+  if(ledon && millis()-time>100) {
     digitalWrite(2, HIGH);
     digitalWrite(16, HIGH);
     ledon = false; time=millis();
@@ -204,7 +204,7 @@ void setupWiFi()
 {
   WiFi.mode(WIFI_AP);
   String AP_NameString = "ESP8266 Climate sensor";
-  WiFi.softAPConfig(IPAddress(192,168,1,1), IPAddress(192,168,1,1), IPAddress(255,255,255,0));
+  //WiFi.softAPConfig(IPAddress(192,168,1,1), IPAddress(192,168,1,1), IPAddress(255,255,255,0));
   
   char AP_NameChar[AP_NameString.length() + 1];
   memset(AP_NameChar, 0, AP_NameString.length() + 1);
