@@ -35,9 +35,7 @@ const char welcomeMessage[] PROGMEM = {
   "</div>"
 };
 
-const char* ssid     = "tupsu";
-//const char* ssid     = "aalto open";
-//const char* password = "";
+
 WiFiServer server(80);
 
 unsigned long time = 0;
@@ -61,24 +59,9 @@ void setup() {
   digitalWrite(16, LOW);
   Serial.begin(115200);
  
-  // We start by connecting to a WiFi network
- 
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+  // Call function to create Wifi AP
+  setupWiFi();
   
-  WiFi.begin(ssid);
-  
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
- 
-  Serial.println("");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-
   server.begin();
   
 }
@@ -217,4 +200,18 @@ String getJSON() {
   return s;
 }
 
+void setupWiFi()
+{
+  WiFi.mode(WIFI_AP);
+  String AP_NameString = "ESP8266 Climate sensor";
+  WiFi.softAPConfig(IPAddress(192,168,1,1), IPAddress(192,168,1,1), IPAddress(255,255,255,0));
+  
+  char AP_NameChar[AP_NameString.length() + 1];
+  memset(AP_NameChar, 0, AP_NameString.length() + 1);
+
+  for (int i=0; i<AP_NameString.length(); i++)
+    AP_NameChar[i] = AP_NameString.charAt(i);
+
+  WiFi.softAP(AP_NameChar);
+}
 
